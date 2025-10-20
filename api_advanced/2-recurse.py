@@ -9,12 +9,12 @@ import requests
 def recurse(subreddit, hot_list=[], after=None):
     """
     Recursively queries Reddit API and returns list of all hot post titles
-    
+
     Args:
         subreddit (str): The subreddit to query
         hot_list (list): List to accumulate post titles
         after (str): Pagination parameter for next page
-        
+
     Returns:
         list: List of all hot post titles, None if invalid subreddit
     """
@@ -25,14 +25,14 @@ def recurse(subreddit, hot_list=[], after=None):
         params['after'] = after
 
     response = requests.get(url, headers=headers, params=params,
-                           allow_redirects=False)
+                            allow_redirects=False)
 
     if response.status_code != 200:
         return None
 
     data = response.json()
     posts = data.get('data', {}).get('children', [])
-    
+
     if not posts:
         return hot_list if hot_list else None
 

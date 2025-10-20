@@ -1,9 +1,10 @@
 #!/usr/bin/python3
-"""Module that queries the Reddit API and prints the top 10 hot posts for a subreddit.
+"""Module that queries the Reddit API and prints the top 10 hot posts
+for a subreddit.
 
-Provides the function `top_ten(subreddit)` which prints the titles of the first
-10 hot posts for the given subreddit. Prints ``None`` if the subreddit is
-invalid or an error occurs.
+Provides the function `top_ten(subreddit)` which prints the titles of the
+first 10 hot posts for the given subreddit. Prints ``None`` if the subreddit
+is invalid or an error occurs.
 """
 
 import requests
@@ -35,7 +36,6 @@ def top_ten(subreddit):
         print(None)
         return
 
-    # If subreddit is invalid or redirect, print None
     if response.status_code != 200:
         print(None)
         return

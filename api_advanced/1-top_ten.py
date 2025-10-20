@@ -16,57 +16,42 @@ def top_ten(subreddit):
         subreddit (str): Name of the subreddit to query.
 
     Output:
-        Prints one title per line for the first 10 hot posts, or prints
-        ``None`` if the subreddit is invalid or an error occurs.
+        Prints one title per line for the first 10 hot posts, or ``None``
+        if the subreddit is invalid or an error occurs.
     """
-    base_url = "https://www.reddit.com"
-    endpoint = "/r/{}/hot.json".format(subreddit)
-    url = base_url + endpoint
+    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) "
+                      "Gecko/20100101 Firefox/52.0",
+        "Accept": "application/json",
+    }
     params = {"limit": 10}
 
-    # Try a small list of commonly-accepted User-Agent strings to increase
-    # the chance the request is accepted by Reddit in different grader envs.
-    user_agents = [
-        "python:api_advanced:1.0 (by /u/your_username)",
-        "python:requests",
-        "Mozilla/5.0",
-    ]
-
-    for agent in user_agents:
-        headers = {"User-Agent": agent}
-        try:
-            resp = requests.get(
-                url,
-                headers=headers,
-                params=params,
-                allow_redirects=False,
-                timeout=10
-            )
-        except requests.exceptions.RequestException:
-            # Try the next user agent if a request error occurred
-            continue
-
-        # If redirect or non-OK -> treat as invalid for this attempt
-        if resp.status_code != 200:
-            continue
-
-        # Try to parse JSON and extract children
-        try:
-            children = resp.json().get("data", {}).get("children", [])
-        except ValueError:
-            # JSON decoding failed; try next agent
-            continue
-
-        if not children:
-            # Empty result for this response; try next agent
-            continue
-
-        # We have data — print titles and return (do not print None)
-        for child in children:
-            title = child.get("data", {}).get("title")
-            if title is not None:
-                print(title)
+    try:
+        response = requests.get(
+            url, headers=headers, params=params, allow_redirects=False,
+            timeout=10
+        )
+    except requests.exceptions.RequestException:
+        print(None)
         return
 
-    # If all attempts failed, print None exactly once
-    print(None)
+    # If redirect/non-OK status -> invalid subreddit or blocked by server
+    if response.status_code != 200:
+        print(None)
+        return
+
+    try:
+        children = response.json().get("data", {}).get("children", [])
+    except ValueError:
+        print(None)
+        return
+
+    if not children:
+        print(None)
+        return
+
+    for child in children:
+        title = child.get("data", {}).get("title")
+        if title is not None:
+            print(title)

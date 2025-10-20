@@ -3,7 +3,8 @@
 
 This module provides the function `top_ten(subreddit)` which prints the
 titles of the first 10 hot posts for the given subreddit. If the subreddit
-is invalid or an error occurs, the function prints ``None``.
+is invalid, a redirect occurs, or an error happens, the function prints
+``None``.
 """
 
 import requests
@@ -22,17 +23,25 @@ def top_ten(subreddit):
     base_url = "https://www.reddit.com"
     endpoint = "/r/{}/hot.json".format(subreddit)
     url = base_url + endpoint
-    headers = {"User-Agent": "ALU:0.1 (by /u/your_username)"}
+    # Use a proper Reddit-style User-Agent commonly accepted by the API
+    headers = {
+        "User-Agent": "python:api_advanced:1.0 (by /u/your_username)"
+    }
     params = {"limit": 10}
 
     try:
         response = requests.get(
-            url, headers=headers, params=params, allow_redirects=False, timeout=10
+            url,
+            headers=headers,
+            params=params,
+            allow_redirects=False,
+            timeout=10
         )
     except requests.exceptions.RequestException:
         print(None)
         return
 
+    # If subreddit redirect or any non-OK status -> None
     if response.status_code != 200:
         print(None)
         return
@@ -40,7 +49,6 @@ def top_ten(subreddit):
     try:
         children = response.json().get("data", {}).get("children", [])
     except ValueError:
-        # JSON decoding failed
         print(None)
         return
 
@@ -50,4 +58,5 @@ def top_ten(subreddit):
 
     for child in children:
         title = child.get("data", {}).get("title")
-        print(title)
+        if title is not None:
+            print(title)

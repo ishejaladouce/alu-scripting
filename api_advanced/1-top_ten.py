@@ -13,21 +13,16 @@ def top_ten(subreddit):
     Args:
         subreddit (str): The subreddit to query
     """
-    url = "https://www.reddit.com/r/{}/hot.json?limit=10".format(subreddit)
+    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
     headers = {'User-Agent': 'alu-scripting-api-advanced'}
+    params = {'limit': 10}
 
-    response = requests.get(url, headers=headers, allow_redirects=False)
+    response = requests.get(url, headers=headers, params=params, allow_redirects=False)
     
-    if response.status_code != 200:
-        print(None)
-        return
-
-    try:
+    if response.status_code == 200:
         data = response.json()
-        posts = data['data']['children']
-        
+        posts = data.get('data', {}).get('children', [])
         for post in posts:
             print(post['data']['title'])
-            
-    except (KeyError, ValueError):
+    else:
         print(None)

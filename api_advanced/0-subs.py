@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Function to query Reddit API and get number of subscribers for a subreddit
+Module to query Reddit API for subreddit subscriber counts
 """
 
 import requests
@@ -22,7 +22,6 @@ def number_of_subscribers(subreddit):
     try:
         response = requests.get(url, headers=headers, allow_redirects=False)
         
-        # If redirect or not found, return 0
         if response.status_code != 200:
             return 0
             

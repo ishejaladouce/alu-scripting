@@ -9,13 +9,13 @@ import requests
 def count_words(subreddit, word_list, after=None, counts=None):
     """
     Recursively counts keywords in Reddit hot post titles
-    
+
     Args:
         subreddit (str): The subreddit to query
         word_list (list): List of keywords to count
         after (str): Pagination parameter
         counts (dict): Dictionary to store word counts
-        
+
     Returns:
         dict: Word counts or None if invalid subreddit
     """

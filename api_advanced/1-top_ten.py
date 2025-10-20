@@ -1,29 +1,53 @@
 #!/usr/bin/python3
-"""Queries the Reddit API for top 10 hot posts of a given subreddit."""
+"""Module that queries Reddit and prints the top 10 hot posts for a subreddit.
+
+This module provides the function `top_ten(subreddit)` which prints the
+titles of the first 10 hot posts for the given subreddit. If the subreddit
+is invalid or an error occurs, the function prints ``None``.
+"""
 
 import requests
 
 
 def top_ten(subreddit):
-    """Prints the titles of the first 10 hot posts for a subreddit."""
-    url = f"https://www.reddit.com/r/{subreddit}/hot.json"
-    headers = {"User-Agent": "Mozilla/5.0 (ALUProjectBot/1.0)"}
+    """Print the titles of the first 10 hot posts for a subreddit.
+
+    Args:
+        subreddit (str): Name of the subreddit to query.
+
+    Output:
+        Prints one title per line for the first 10 hot posts, or prints
+        ``None`` if the subreddit is invalid or an error occurs.
+    """
+    base_url = "https://www.reddit.com"
+    endpoint = "/r/{}/hot.json".format(subreddit)
+    url = base_url + endpoint
+    headers = {"User-Agent": "ALU:0.1 (by /u/your_username)"}
     params = {"limit": 10}
 
     try:
-        response = requests.get(url, headers=headers, params=params,
-                                allow_redirects=False)
-        if response.status_code != 200:
-            print(None)
-            return
-
-        data = response.json().get("data", {}).get("children", [])
-        if not data:
-            print(None)
-            return
-
-        for post in data:
-            print(post.get("data", {}).get("title"))
-
-    except Exception:
+        response = requests.get(
+            url, headers=headers, params=params, allow_redirects=False, timeout=10
+        )
+    except requests.exceptions.RequestException:
         print(None)
+        return
+
+    if response.status_code != 200:
+        print(None)
+        return
+
+    try:
+        children = response.json().get("data", {}).get("children", [])
+    except ValueError:
+        # JSON decoding failed
+        print(None)
+        return
+
+    if not children:
+        print(None)
+        return
+
+    for child in children:
+        title = child.get("data", {}).get("title")
+        print(title)
